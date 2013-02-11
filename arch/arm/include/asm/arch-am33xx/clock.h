@@ -19,6 +19,10 @@
 #ifndef _CLOCKS_H_
 #define _CLOCKS_H_
 
+#ifdef CONFIG_AM33XX
 #include <asm/arch/clocks_am33xx.h>
+#elif defined(CONFIG_TI814X)
+#include <asm/arch/clocks_ti814x.h>
+#endif
 
 #endif

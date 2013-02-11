@@ -16,7 +16,8 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(SOC).o
 
-COBJS	+= clock.o
+COBJS-$(CONFIG_AM33XX)	+= clock-am335x.o
+COBJS-$(CONFIG_TI814X)	+= clock-ti814x.o
 COBJS	+= sys_info.o
 COBJS	+= mem.o
 COBJS	+= ddr.o
