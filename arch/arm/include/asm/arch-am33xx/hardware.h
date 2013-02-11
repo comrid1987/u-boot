@@ -20,9 +20,14 @@
 #define __AM33XX_HARDWARE_H
 
 #include <asm/arch/omap.h>
+#include <config.h>
 
 /* Module base addresses */
+#ifdef CONFIG_AM33XX
 #define UART0_BASE			0x44E09000
+#elif defined(CONFIG_TI814X)
+#define UART0_BASE			0x48020000
+#endif
 
 /* DM Timer base addresses */
 #define DM_TIMER0_BASE			0x4802C000
@@ -37,20 +42,39 @@
 /* GPIO Base address */
 #define GPIO0_BASE			0x48032000
 #define GPIO1_BASE			0x4804C000
+#ifdef CONFIG_AM33XX
 #define GPIO2_BASE			0x481AC000
+#endif
 
 /* BCH Error Location Module */
 #define ELM_BASE			0x48080000
 
 /* Watchdog Timer */
+#ifdef CONFIG_AM33XX
 #define WDT_BASE			0x44E35000
+#elif defined(CONFIG_TI814X)
+#define WDT_BASE			0x481C7000
+#endif
 
 /* Control Module Base Address */
+#ifdef CONFIG_AM33XX
 #define CTRL_BASE			0x44E10000
 #define CTRL_DEVICE_BASE		0x44E10600
+#elif defined(CONFIG_TI814X)
+#define CTRL_BASE			0x48140000
+#endif
 
 /* PRCM Base Address */
+#ifdef CONFIG_AM33XX
 #define PRCM_BASE			0x44E00000
+#elif defined(CONFIG_TI814X)
+#define PRCM_BASE			0x48180000
+#endif
+
+/* PLL Subsystem Base Address */
+#ifdef CONFIG_TI814X
+#define PLL_SUBSYS_BASE			0x481C5000
+#endif
 
 /* EMIF Base address */
 #define EMIF4_0_CFG_BASE		0x4C000000
@@ -99,10 +123,18 @@
 
 /* CPSW Config space */
 #define CPSW_BASE			0x4A100000
+#ifdef CONFIG_AM33XX
 #define CPSW_MDIO_BASE			0x4A101000
+#elif defined(CONFIG_TI814X)
+#define CPSW_MDIO_BASE			0x4A100800
+#endif
 
 /* RTC base address */
+#ifdef CONFIG_AM33XX
 #define RTC_BASE			0x44E3E000
+#elif defined(CONFIG_TI814X)
+#define RTC_BASE			0x480C0000
+#endif
 
 /* OTG */
 #define USB0_OTG_BASE			0x47401000
