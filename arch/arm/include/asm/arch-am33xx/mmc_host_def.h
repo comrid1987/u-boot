@@ -153,7 +153,11 @@ typedef struct hsmmc {
 #define MMC_CMD0	(INDEX(0) | RSP_TYPE_NONE | DP_NO_DATA | DDIR_WRITE)
 
 /* Clock Configurations and Macros */
+#ifdef CONFIG_AM33XX
 #define MMC_CLOCK_REFERENCE	96 /* MHz */
+#elif defined(CONFIG_TI814X)
+#define MMC_CLOCK_REFERENCE	192 /* MHz */
+#endif
 
 #define mmc_reg_out(addr, mask, val)\
 	writel((readl(addr) & (~(mask))) | ((val) & (mask)), (addr))
