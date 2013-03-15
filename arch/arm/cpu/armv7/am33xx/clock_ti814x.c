@@ -183,7 +183,7 @@ struct cm_alwon {
 	unsigned int resv5[2];
 	unsigned int gpmcclkctrl;
 	unsigned int ethernet0clkctrl;
-	unsigned int resv6[1];
+	unsigned int ethernet1clkctrl;
 	unsigned int mpuclkctrl;
 	unsigned int debugssclkctrl;
 	unsigned int l3clkctrl;
@@ -203,9 +203,23 @@ struct cm_alwon {
 	unsigned int custefuseclkctrl;
 };
 
+#define SATA_PLL_BASE			(CTRL_BASE + 0x0720)
+
+struct sata_pll {
+	unsigned int pllcfg0;
+	unsigned int pllcfg1;
+	unsigned int pllcfg2;
+	unsigned int pllcfg3;
+	unsigned int pllcfg4;
+	unsigned int pllstatus;
+	unsigned int rxstatus;
+	unsigned int txstatus;
+	unsigned int testcfg;
+};
 
 const struct cm_alwon *cmalwon = (struct cm_alwon *)CM_ALWON_BASE;
 const struct cm_def *cmdef = (struct cm_def *)CM_DEFAULT_BASE;
+const struct sata_pll *spll = (struct sata_pll *)SATA_PLL_BASE;
 
 /*
  * Enable the peripheral clock for required peripherals
@@ -220,6 +234,18 @@ static void enable_per_clocks(void)
 	/* HSMMC1 */
 	writel(PRCM_MOD_EN, &cmalwon->mmchs1clkctrl);
 	while (readl(&cmalwon->mmchs1clkctrl) != PRCM_MOD_EN)
+		;
+
+	/* Ethernet */
+	writel(PRCM_MOD_EN, &cmalwon->l3slowclkstctrl);
+	while ((readl(&cmalwon->l3slowclkstctrl) & 0x2100) != 0x2100)
+		;
+	writel(PRCM_MOD_EN, &cmalwon->ethclkstctrl);
+	writel(PRCM_MOD_EN, &cmalwon->ethernet0clkctrl);
+	while ((readl(&cmalwon->ethernet0clkctrl) & 0x30000) != 0)
+		;
+	writel(PRCM_MOD_EN, &cmalwon->ethernet1clkctrl);
+	while ((readl(&cmalwon->ethernet1clkctrl) & 0x30000) != 0)
 		;
 }
 
@@ -365,6 +391,31 @@ void ddr_pll_config(unsigned int ddrpll_m)
 	pll_config(DDR_PLL_BASE, DDR_N, DDR_M, DDR_M2, DDR_CLKCTRL, 1);
 }
 
+void sata_pll_config(void)
+{
+	/* TRM 21.3.1 */
+	writel(0xc12c003c, &spll->pllcfg1);
+	udelay(50);
+
+	writel(0x004008e0, &spll->pllcfg3);
+	udelay(50);
+
+	writel(0x80000004, &spll->pllcfg0);
+	udelay(50);
+
+	writel(0x80000014, &spll->pllcfg0);
+	udelay(50);
+
+	writel(0x80000016, &spll->pllcfg0);
+	udelay(50);
+
+	writel(0xc0000017, &spll->pllcfg0);
+	udelay(50);
+
+	while (((readl(&spll->pllstatus) & 0x01) == 0))
+		;
+}
+
 void enable_emif_clocks(void) {};
 
 void enable_dmm_clocks(void)
@@ -397,9 +448,10 @@ void pll_init()
 	/* Enable the control module */
 	writel(PRCM_MOD_EN, &cmalwon->controlclkctrl);
 
+	/* Configure PLLs */
 	mpu_pll_config();
-
 	l3_pll_config();
+	sata_pll_config();
 
 	/* Enable the required peripherals */
 	enable_per_clocks();
