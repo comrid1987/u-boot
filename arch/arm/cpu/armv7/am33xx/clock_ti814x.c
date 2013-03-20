@@ -438,6 +438,52 @@ void enable_dmm_clocks(void)
 		;
 }
 
+void pcie_pll_config(void)
+{
+	debug(">>>pcie_pll_config()\n");
+
+	__raw_writel(0x00000002, 0x48140E24); /*PowerDown*/
+        __udelay(50); /* Wait 50 us*/
+	/* FIXME TRM says this should be 0x40007000 */
+        __raw_writel(0x00000000, 0x481406D8); /*cfgpll0//SERDES CFG0*/
+        __udelay(50); /* Wait 50 us*/
+        __raw_writel(0x00640000, 0x481406DC); /*cfgpll1//SERDES CFG1*/
+        __udelay(50); /*Wait 50 us*/
+        __raw_writel(0x00000000, 0x481406E0); /*cfgpll2//SERDES CFG2*/
+        __udelay(50); /*Wait 50 us*/
+        __raw_writel(0x004008E0, 0x481406E4); /*cfgpll3//SERDES CFG3*/
+        __udelay(50); /*Wait 50 us*/
+        __raw_writel(0x0000609C, 0x481406E8); /*cfgpll4//SERDES CFG4*/
+        __udelay(50); /* Wait 50 us*/
+
+	/* FIXME undocumented crap */
+	/* This is for PG1.0 */
+	__raw_writel(0x00000E7B, 0x48141318); /*pcie_serdes_cfg_misc*/
+	__udelay(50);
+
+        __raw_writel(0x00000004, 0x481406D8);
+        __udelay(50); /*Wait 50 us*/
+        /* Config PLL CFG0 bit [4] - DIGLDO*/
+        __raw_writel(0x00000014, 0x481406D8);
+        __udelay(50); /*Wait 50 us*/
+        /* Config PLL CFG0 bit [1] - ENPLLLDO*/
+        __raw_writel(0x00000016, 0x481406D8);
+        __udelay(50); /*Wait 50 us*/
+        /* Configure proxy TXLDO and RXLDO enables */
+        __raw_writel(0x30000016, 0x481406D8);
+        __udelay(50); /*Wait 50 us*/
+        __raw_writel(0x70007016, 0x481406D8); /*Configure multiplier*/
+        __udelay(200); /* Wait 200 us*/
+
+	debug("before pcie serdes pll enable\n");
+
+        __raw_writel(0x70007017, 0x481406D8);  /*Enable PLL*/
+        while ((__raw_readl(0x481406EC) & 0x1) == 0)
+                ;
+	debug("<<<pcie_pll_config()\n");
+}
+
+
 /*
  * Configure the PLL/PRCM for necessary peripherals
  */
