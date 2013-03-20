@@ -3,7 +3,7 @@
  *
  * Board functions for TI814x EVM
  *
- * Copyright (C) 2011, Texas Instruments, Incorporated - http://www.ti.com/
+ * Copyright (C) 2013, Texas Instruments, Incorporated - http://www.ti.com/
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,6 +19,7 @@
 #include <common.h>
 #include <cpsw.h>
 #include <errno.h>
+#include <netdev.h>
 #include <spl.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/hardware.h>
@@ -27,6 +28,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/mmc_host_def.h>
+#include <asm/arch/pcie.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/io.h>
 #include <asm/emif.h>
@@ -206,6 +208,13 @@ int board_mmc_init(bd_t *bis)
 }
 #endif
 
+#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_PCI)
+void pci_init_board(void)
+{
+	omap_pcie_init();
+}
+#endif
+
 #ifdef CONFIG_DRIVER_TI_CPSW
 static void cpsw_control(int enabled)
 {
@@ -250,6 +259,10 @@ int board_eth_init(bd_t *bis)
 {
 	uint8_t mac_addr[6];
 	uint32_t mac_hi, mac_lo;
+
+#ifdef CONFIG_PCI
+	pci_eth_init(bis);
+#endif
 
 	if (!eth_getenv_enetaddr("ethaddr", mac_addr)) {
 		printf("<ethaddr> not set. Reading from E-fuse\n");

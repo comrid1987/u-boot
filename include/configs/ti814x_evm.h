@@ -16,6 +16,8 @@
 #ifndef __CONFIG_TI814X_EVM_H
 #define __CONFIG_TI814X_EVM_H
 
+#define DEBUG
+
 #define CONFIG_TI81XX
 #define CONFIG_TI814X
 #define CONFIG_SYS_NO_FLASH
@@ -237,5 +239,16 @@
 #define CONFIG_PHY_ADDR			1
 #define CONFIG_PHY_ET1011C
 #define CONFIG_PHY_ET1011C_TX_CLK_FIX
+
+/* PCI-E */
+#define CONFIG_CMD_PCI
+#define CONFIG_PCI
+#define CONFIG_PCI_HOST
+#define CONFIG_PCI_PNP
+#define CONFIG_PCI_SCAN_SHOW
+#define CONFIG_PCIAUTO_SKIP_HOST_BRIDGE
+
+/* PCI-E Networking */
+#define CONFIG_E1000
 
 #endif	/* ! __CONFIG_TI814X_EVM_H */
